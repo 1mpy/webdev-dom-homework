@@ -6,6 +6,25 @@ const currentDate = new Date().toLocaleString();
 const deleteButton = document.getElementById("del-button");
 const commentElements = document.querySelectorAll(".comment");
 
+const likeButtonsListeners = () => {
+  const likeButtons = document.querySelectorAll(".like-button");
+// console.log(likeButtons);
+  for (const likeButton of likeButtons) {
+    likeButton.addEventListener('click', () => {
+      const index = likeButton.dataset.like;
+      if (likeButton.classList.contains("-active-like")) {
+        comments[index].likesComment -=1;
+        likeButton.classList.remove("-active-like");
+        renderComments();
+      } else {
+        comments[index].likesComment +=1;  
+        likeButton.classList.add("-active-like");
+        renderComments();      
+      }
+    });
+  }  
+};
+
 
 
 const comments = [{
@@ -36,13 +55,14 @@ const renderComments = () => {
     </div>
     <div class="comment-footer">
       <div class="likes">
-        <span class="likes-counter" data-like="${index}">${comment.likesComment}</span>      
-        <button class="like-button"></button>
+        <span class="likes-counter">${comment.likesComment}</span>      
+        <button class="like-button"  data-like="${index}"></button>
       </div>
     </div>
   </li>`;
   }).join('');
   listElement.innerHTML = commentsHtml;
+  likeButtonsListeners();
 };
 
 renderComments();
@@ -128,29 +148,6 @@ deleteButton.addEventListener('click', () => {
 
 //счетчик лайков
 
-const likeButtonsListeners = () => {
-  const likeButtons = document.querySelectorAll(".like-button");
-// console.log(likeButtons);
-  for (const likeButton of likeButtons) {
-    likeButton.addEventListener('click', () => {
-      const index = likeButton.dataset.like;
-      if (likeButton.classList.contains("like-button")) {
-        likeButton.classList.toggle("-active-like");
-        // likeButton.classList.remove("like-button");
-        // likeButton.classList.add("-active-like");
-        comments[index].likesComment +=1;
-        renderComments();
-      } else {
-        // likeButton.classList.remove("-active-like");
-        likeButton.classList.add("like-button");
-        comments[index].likesComment -=1;
-      }
-      renderComments();
-    });
-  }
-  
-};
 
-likeButtonsListeners();
 
 
