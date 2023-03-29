@@ -12,32 +12,32 @@ const likeButtonsListeners = () => {
   for (const likeButton of likeButtons) {
     likeButton.addEventListener('click', () => {
       const index = likeButton.dataset.like;
-      if (likeButton.classList.contains("-active-like")) {
-        comments[index].likesComment -=1;
-        likeButton.classList.remove("-active-like");
-        renderComments();
+      if (comments[index].likedComment === "like-button") {
+        comments[index].likesComment +=1;
+        comments[index].likedComment = "like-button -active-like";
+        
       } else {
-        comments[index].likesComment +=1;  
-        likeButton.classList.add("-active-like");
-        renderComments();      
+        comments[index].likesComment -=1;
+        comments[index].likedComment = "like-button";  
       }
+      renderComments();
     });
   }  
 };
-
-
 
 const comments = [{
     nameComment: "Глеб Фокин",
     textComment: "Это будет первый комментарий на этой странице",
     dateComment: "12.02.22 12:18",
-    likesComment: 3
+    likesComment: 3,
+    likedComment: "like-button",
   },
   {
     nameComment: "Варвара Н.",
     textComment: "Мне нравится как оформлена эта страница! ❤",
     dateComment: "13.02.22 19:22",
-    likesComment: 75
+    likesComment: 75,
+    likedComment: "like-button",
   }
 ];
 
@@ -56,13 +56,50 @@ const renderComments = () => {
     <div class="comment-footer">
       <div class="likes">
         <span class="likes-counter">${comment.likesComment}</span>      
-        <button class="like-button"  data-like="${index}"></button>
+        <button class="like-button ${comment.likedComment}" data-like="${index}"></button>
       </div>
     </div>
   </li>`;
   }).join('');
   listElement.innerHTML = commentsHtml;
   likeButtonsListeners();
+  
+  nameInputElement.addEventListener("input", inputCheck);
+  textInputElement.addEventListener("input", inputCheck);
+  nameInputElement.addEventListener("keyup", ({
+    key
+  }) => {
+    if (key === "Enter") {
+      nameInputElement.classList.remove("error");
+      if (nameInputElement.value === "") {
+        nameInputElement.classList.add("error");
+        return;
+      } else if (textInputElement.value === "") {
+        textInputElement.classList.add("error");
+        return;
+      }
+      renderComments();
+    }
+  
+  });
+  
+  textInputElement.addEventListener("keyup", ({
+    key
+  }) => {
+    if (key === "Enter") {
+      textInputElement.classList.remove("error");
+      if (textInputElement.value === "") {
+        textInputElement.classList.add("error");
+        return;
+      } else if (nameInputElement.value === "") {
+        nameInputElement.classList.add("error");
+        return;
+      }
+      renderComments();
+    }
+  
+  });
+  
 };
 
 renderComments();
@@ -82,10 +119,11 @@ buttonElement.addEventListener('click', () => {
     nameComment: nameInputElement.value,
     textComment: textInputElement.value,
     dateComment: currentDate,
-    likesComment: 0
+    likesComment: 0,
+    likedComment: "like-button",
   });
   renderComments();
-  likeButtonsListeners();
+ 
 });
 
 function inputCheck() {
@@ -141,12 +179,14 @@ textInputElement.addEventListener("keyup", ({
 });
 
 
+
+
+
 //кнопка удаления
 deleteButton.addEventListener('click', () => {
   listElement.lastElementChild.remove(`${textInputElement.value}`);
 });
 
-//счетчик лайков
 
 
 
