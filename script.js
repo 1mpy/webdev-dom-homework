@@ -95,7 +95,7 @@ function addNewElement() {
       likesComment: 0,
       likedComment: "like-button",
     });
-
+    protectHtml();
     renderComments();
     makeResponse();
   });
@@ -161,7 +161,7 @@ function protectHtml (anything = ""){
   return anything.replaceAll("<","&lt;").replaceAll(">","&gt;");
 }
 
-protectHtml();
+
 
 // Ответ на комментарий
 
