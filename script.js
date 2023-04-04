@@ -5,7 +5,7 @@ const textInputElement = document.getElementById("text-input");
 const currentDate = new Date().toLocaleString();
 const deleteButton = document.getElementById("del-button");
 
-
+let comments = [];
 // Лайки и их счетчик
 
 const likeButtonsListeners = () => {
@@ -27,26 +27,47 @@ const likeButtonsListeners = () => {
   }
 };
 
+//ЗАПРОС
+const fetchPromise = fetch("https://webdev-hw-api.vercel.app/api/v1/anton-sobachkin/comments", {
+  method: "GET"
+});
+fetchPromise.then((res) => {
+  res.json().then((responseData) => {
+    const appComments = responseData.comments.map((comment, id) => {
+      return {
+        nameComment: comment.author.name,
+        dateComment: new Date(comment.date).toLocaleString(),
+        textComment: comment.text,
+        likesComment: comment.likes,
+        likedComment: "like-button",
+      };
+    });
+    comments = appComments;    
+    renderComments();
+    console.log(comments);
+  });
+});
+
+console.log(comments);
 
 //Рендер-функция
-let comments = [];
+
 const renderComments = () => {
-  const id = listElement.dataset.id;
-  const commentsHtml = comments.map((comment) => {
-    return `<li class="comment" data-id="${comments.id}">
+  const commentsHtml = comments.map((comment,index) => {
+    return `<li class="comment" >
     <div class="comment-header">
       <div class="comment-name">${comment.nameComment}</div>
       <div>${comment.dateComment}</div>
     </div>
     <div class="comment-body">
-      <div class="comment-text" data-reply="${id}">
+      <div class="comment-text" >
         ${comment.textComment}
       </div>
     </div>
     <div class="comment-footer">
       <div class="likes">
         <span class="likes-counter">${comment.likesComment}</span>      
-        <button class="like-button ${comment.likedComment}" data-id="${id}"></button>
+        <button class="like-button ${comment.likedComment}" data-like="${index}"></button>
       </div>
     </div>
   </li>`;
@@ -54,29 +75,9 @@ const renderComments = () => {
   listElement.innerHTML = commentsHtml;
 
   likeButtonsListeners();
-
+  addNewElement();
 };
 renderComments();
-
-//ЗАПРОС
-const fetchPromise = fetch("https://webdev-hw-api.vercel.app/api/v1/anton-sobachkin/comments", {
-  method: "GET"
-});
-fetchPromise.then((res) => {
-  res.json().then((responseData) => {
-    const appComments = responseData.comments.map((comment) => {
-      return {
-        nameComment: comment.author.name,
-        dateComment: new Date(comment.date).toLocaleString(),
-        textComment: comment.text,
-        likesComment: comment.likes,
-        likedComment: comment.isLiked,
-      };
-    });
-    comments = appComments;
-    renderComments();
-  });
-});
 
 
 //Добавление комментария
@@ -90,18 +91,10 @@ buttonElement.addEventListener("click", () => {
           "text": textInputElement.value,
           "name": nameInputElement.value
       })
-  }).then((response) => {
-      response.json().then((responseData) => {
-          comments = responseData.comments;
-          renderComments();
-      });
   });
-
   renderComments();
-
   textInputElement.value = "";
 });
-
 
 
 //Обновление по кнопке
@@ -118,7 +111,7 @@ refresh.then((res) => {
         dateComment: new Date(comment.date).toLocaleString(),
         textComment: comment.text,
         likesComment: comment.likes,
-        likedComment: false,
+        likedComment: "like-button",
       };
     });
     comments = appComments;
@@ -130,8 +123,8 @@ refresh.then((res) => {
 }
 addNewElement();
 
-
 //кнопка удаления
+
 deleteButton.addEventListener('click', () => {
   listElement.lastElementChild.remove(`${textInputElement.value}`);
 });
