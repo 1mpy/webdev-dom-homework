@@ -33,7 +33,7 @@ const fetchPromise = fetch("https://webdev-hw-api.vercel.app/api/v1/anton-sobach
 });
 fetchPromise.then((res) => {
   res.json().then((responseData) => {
-    const appComments = responseData.comments.map((comment, id) => {
+    const appComments = responseData.comments.map((comment) => {
       return {
         nameComment: comment.author.name,
         dateComment: new Date(comment.date).toLocaleString(),
@@ -44,11 +44,11 @@ fetchPromise.then((res) => {
     });
     comments = appComments;    
     renderComments();
-    console.log(comments);
+    // console.log(comments);
   });
 });
 
-console.log(comments);
+// console.log(comments);
 
 //Рендер-функция
 
