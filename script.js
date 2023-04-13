@@ -6,6 +6,7 @@ const currentDate = new Date().toLocaleString();
 const deleteButton = document.getElementById("del-button");
 
 let comments = [];
+
 // Лайки и их счетчик
 
 const likeButtonsListeners = () => {
@@ -27,12 +28,15 @@ const likeButtonsListeners = () => {
   }
 };
 
-//ЗАПРОС
-const fetchPromise = fetch("https://webdev-hw-api.vercel.app/api/v1/anton-sobachkin/comments", {
-  method: "GET"
-});
-fetchPromise.then((res) => {
-  res.json().then((responseData) => {
+// отдельная функцию получения списка комментариев
+
+const codeAdjust = () => {
+fetch("https://webdev-hw-api.vercel.app/api/v1/anton-sobachkin/comments", {
+    method: "GET"
+  }).then((res) => {
+    return res.json();
+  })
+  .then((responseData) => {
     const appComments = responseData.comments.map((comment) => {
       return {
         nameComment: comment.author.name,
@@ -42,18 +46,15 @@ fetchPromise.then((res) => {
         likedComment: "like-button",
       };
     });
-    comments = appComments;    
+    comments = appComments;
     renderComments();
-    // console.log(comments);
   });
-});
-
-// console.log(comments);
+};
 
 //Рендер-функция
 
 const renderComments = () => {
-  const commentsHtml = comments.map((comment,index) => {
+  const commentsHtml = comments.map((comment, index) => {
     return `<li class="comment" >
     <div class="comment-header">
       <div class="comment-name">${comment.nameComment}</div>
@@ -77,48 +78,37 @@ const renderComments = () => {
   likeButtonsListeners();
   addNewElement();
 };
+codeAdjust();
 renderComments();
 
 
 //Добавление комментария
 buttonElement.addEventListener("click", () => {
   if (textInputElement.value === "") {
-      return;
+    return;
   }
+  buttonElement.disabled = true;
+  buttonElement.textContent = "Элемент добавлятся...";
   fetch("https://webdev-hw-api.vercel.app/api/v1/anton-sobachkin/comments", {
-      method: "POST",
-      body: JSON.stringify({
-          "text": textInputElement.value,
-          "name": nameInputElement.value
-      })
+    method: "POST",
+    body: JSON.stringify({
+      "text": textInputElement.value,
+      "name": nameInputElement.value
+    })
+  })
+  .then(() => {
+    renderComments();
+    textInputElement.value = "";
+    buttonElement.disabled = false;
+    buttonElement.textContent = "Написать";
   });
-  renderComments();
-  textInputElement.value = "";
 });
 
 
 //Обновление по кнопке
 function addNewElement() {
   buttonElement.addEventListener('click', () => {
-const refresh = fetch("https://webdev-hw-api.vercel.app/api/v1/anton-sobachkin/comments", {
-  method: "GET"
-});
-refresh.then((res) => {
-  res.json().then((responseData) => {
-    const appComments = responseData.comments.map((comment) => {
-      return {
-        nameComment: comment.author.name,
-        dateComment: new Date(comment.date).toLocaleString(),
-        textComment: comment.text,
-        likesComment: comment.likes,
-        likedComment: "like-button",
-      };
-    });
-    comments = appComments;
-    renderComments();
-  });
-});
-
+    codeAdjust();
   });
 }
 addNewElement();
