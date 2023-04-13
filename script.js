@@ -99,8 +99,6 @@ buttonElement.addEventListener("click", () => {
   .then(() => {
     renderComments();
     textInputElement.value = "";
-  })
-  .then(() => {
     buttonElement.disabled = false;
     buttonElement.textContent = "Написать";
   });
