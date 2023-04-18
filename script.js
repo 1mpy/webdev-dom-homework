@@ -1,86 +1,21 @@
+import {
+  codeAdjust
+} from "./api.js";
+import {
+  addComm
+} from "./api.js";
+import renderComments from "./renderComments.js";
 const buttonElement = document.getElementById("add-button");
 const listElement = document.getElementById("list");
-const nameInputElement = document.getElementById("name-input");
 const textInputElement = document.getElementById("text-input");
-const currentDate = new Date().toLocaleString();
 const deleteButton = document.getElementById("del-button");
 
-let comments = [];
-
-// Лайки и их счетчик
-
-const likeButtonsListeners = () => {
-  const likeButtons = document.querySelectorAll(".like-button");
-  // console.log(likeButtons);
-  for (const likeButton of likeButtons) {
-    likeButton.addEventListener('click', () => {
-      const index = likeButton.dataset.like;
-      if (comments[index].likedComment === "like-button") {
-        comments[index].likesComment += 1;
-        comments[index].likedComment = "like-button -active-like";
-
-      } else {
-        comments[index].likesComment -= 1;
-        comments[index].likedComment = "like-button";
-      }
-      renderComments();
-    });
-  }
-};
 
 // отдельная функцию получения списка комментариев
-
-const codeAdjust = () => {
-  fetch("https://webdev-hw-api.vercel.app/api/v1/anton-sobachkin/comments", {
-      method: "GET"
-    }).then((res) => {
-      return res.json();
-    })
-    .then((responseData) => {
-      const appComments = responseData.comments.map((comment) => {
-        return {
-          nameComment: comment.author.name,
-          dateComment: new Date(comment.date).toLocaleString(),
-          textComment: comment.text,
-          likesComment: comment.likes,
-          likedComment: "like-button",
-        };
-      });
-      comments = appComments;
-      renderComments();
-    });
-};
+codeAdjust();
 
 //Рендер-функция
-
-const renderComments = () => {
-  const commentsHtml = comments.map((comment, index) => {
-    return `<li class="comment" >
-    <div class="comment-header">
-      <div class="comment-name">${comment.nameComment}</div>
-      <div>${comment.dateComment}</div>
-    </div>
-    <div class="comment-body">
-      <div class="comment-text" >
-        ${comment.textComment}
-      </div>
-    </div>
-    <div class="comment-footer">
-      <div class="likes">
-        <span class="likes-counter">${comment.likesComment}</span>      
-        <button class="like-button ${comment.likedComment}" data-like="${index}"></button>
-      </div>
-    </div>
-  </li>`;
-  }).join('');
-  listElement.innerHTML = commentsHtml;
-
-  likeButtonsListeners();
-  addNewElement();
-};
-codeAdjust();
 renderComments();
-
 
 //Добавление комментария
 buttonElement.addEventListener("click", () => {
@@ -89,40 +24,7 @@ buttonElement.addEventListener("click", () => {
   }
   buttonElement.disabled = true;
   buttonElement.textContent = "Элемент добавлятся...";
-  fetch("https://webdev-hw-api.vercel.app/api/v1/anton-sobachkin/comments", {
-      method: "POST",
-      body: JSON.stringify({
-        "text": textInputElement.value,
-        "name": nameInputElement.value,
-        forceError: true,
-      }),
-    })
-    .then((response) => {
-      renderComments();
-      buttonElement.disabled = false;
-      buttonElement.textContent = "Написать";
-      if (response.status === 400) {
-        throw new Error("too short");      }
-
-      if (response.status === 500) {
-        throw new Error("sever down");
-      }
-    })
-    .catch((error) => {
-      buttonElement.disabled = false;
-      buttonElement.textContent = "Написать"; 
-      if (error.message === "sever down") {
-        alert("Сервер сломался, попробуй позже");
-        return;
-      }    
-      if (error.message === "too short") {
-        alert("Имя и комментарий должны быть не короче 3 символов");  
-        return;
-      }  
-      else {
-       alert("Кажется, у вас сломался интернет, попробуйте позже");
-      }
-    });
+  addComm();
 });
 
 //Обновление по кнопке
